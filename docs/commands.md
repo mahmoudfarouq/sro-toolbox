@@ -44,35 +44,13 @@ $ toolbox accounts ban player01 --reason "botting"
 Banned player01 permanently (replacing an existing ban).
 ```
 
-## `characters`
+## Areas not yet present
 
-| Command | Status |
-|---|---|
-| `characters show <name>` | ⏳ |
-| `characters set-level <name> --level <n>` | ⏳ |
-| `characters teleport <name> --region <id>` | ⏳ |
-
-## `items`
-
-| Command | Status |
-|---|---|
-| `items create --code-name <NAME> [--max-stack <n>]` | ⏳ |
-| `items show <code-name>` | ⏳ |
-| `items grant <character> --code-name <NAME> [--quantity <n>]` | ⏳ |
-
-## `spawns`
-
-| Command | Status |
-|---|---|
-| `spawns add --monster <NAME> --region <id> [--count <n>]` | ⏳ |
-| `spawns list [--region <id>]` | ⏳ |
-
-## `server`
-
-| Command | Status |
-|---|---|
-| `server status` | ⏳ |
-| `server notice <message>` | ⏳ |
+`accounts` is the only area. Characters, items, spawns, drops, skills, quests,
+guilds, sieges, jobs, events, the world, the live server and client patching are
+all in scope and each will arrive as its own area with its own use cases. The
+survey of what that covers lives in the
+[capability catalogue](https://github.com/mahmoudfarouq/pk2/blob/master/docs/server-toolbox-capabilities.md).
 
 ## `completions`
 

@@ -6,7 +6,3 @@
 //! application layer instead.
 
 pub(crate) mod accounts;
-pub(crate) mod characters;
-pub(crate) mod items;
-pub(crate) mod server;
-pub(crate) mod spawns;

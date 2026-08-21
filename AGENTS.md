@@ -105,11 +105,11 @@ Terms from the game, used precisely:
 
 ## Things that look wrong but are not
 
-- The stub command handlers return `NotImplemented` for every variant. That is
-  intentional: the command surface is meant to be complete and navigable before
-  the use cases exist.
-- `crates/domain` contains only accounts. Characters, items and currencies were
-  removed deliberately to keep the skeleton to one worked path; add them back
-  alongside the use case that needs them.
+- `accounts` is the only command area, and only `ban` within it works. The other
+  three actions return `NotImplemented` on purpose, so the shape of a stub is
+  visible without there being four areas of them.
+- `crates/domain` contains only accounts. Characters, items, currencies and world
+  geometry were removed deliberately to keep the skeleton to one worked path. Add
+  each back alongside the use case that needs it, not in advance.
 - `--dry-run` is parsed but not enforced, and logs a warning saying so. Wiring it
   properly needs a preview-capable adapter.

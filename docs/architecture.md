@@ -113,9 +113,11 @@ is why the ports are async despite a CLI not needing it — see
 
 ## What is deliberately missing
 
-- Only `accounts ban` is implemented. The command surface is complete so it can
-  be navigated and tested; the use cases behind it are not written.
+- Only `accounts` exists, and within it only `ban` is implemented. The other
+  three actions parse and validate, then exit 4.
 - `domain` contains only accounts, trimmed to keep the skeleton to one path.
+  Every other area is additive: a domain module, its ports, its use cases, and a
+  variant on `Command`.
 - No configuration loading. `SqlServerContext` shows where a connection string
   will arrive.
 - `--dry-run` is parsed but not enforced.

@@ -20,12 +20,12 @@ fn shows_help_without_arguments() {
 }
 
 #[test]
-fn every_area_is_reachable_from_help() {
-    let output = toolbox().arg("--help").assert().success();
+fn accounts_actions_are_all_listed_in_help() {
+    let output = toolbox().args(["accounts", "--help"]).assert().success();
     let stdout = String::from_utf8(output.get_output().stdout.clone()).expect("utf-8");
 
-    for area in ["accounts", "characters", "items", "spawns", "server"] {
-        assert!(stdout.contains(area), "help should mention {area}");
+    for action in ["ban", "unban", "show", "grant-silk"] {
+        assert!(stdout.contains(action), "help should mention {action}");
     }
 }
 
@@ -86,7 +86,7 @@ fn invalid_input_exits_with_code_two() {
 #[test]
 fn an_unimplemented_command_exits_with_code_four() {
     toolbox()
-        .args(["items", "show", "ITEM_CH_SWORD_01_A"])
+        .args(["accounts", "show", "player01"])
         .assert()
         .code(4)
         .stderr(contains("not implemented yet"));

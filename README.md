@@ -49,15 +49,14 @@ See [`docs/architecture.md`](docs/architecture.md) for the full picture and
 toolbox [--output text|json] [--dry-run] [-v...] <area> <action>
 
   accounts     ban · unban · show · grant-silk
-  characters   show · set-level · teleport
-  items        create · show · grant
-  spawns       add · list
-  server       status · notice
   completions  <shell>
 ```
 
-Only `accounts ban` is implemented. The rest parse, validate and exit 4.
-Full listing in [`docs/commands.md`](docs/commands.md).
+Only `accounts ban` is implemented; the other three actions parse, validate and
+exit 4. `accounts` is the only area that exists — characters, items, spawns and
+server administration all belong here and will be added as areas of their own,
+each with its own use cases. Full listing in
+[`docs/commands.md`](docs/commands.md).
 
 Exit codes are distinct so scripts can branch without parsing messages:
 

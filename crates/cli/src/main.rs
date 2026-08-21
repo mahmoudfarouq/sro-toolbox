@@ -57,16 +57,6 @@ async fn run(cli: Cli) -> Result<(), CliError> {
         Command::Accounts { command } => {
             commands::accounts::handle(&context, cli.output, command).await
         }
-        Command::Characters { command } => {
-            commands::characters::handle(&context, cli.output, command).await
-        }
-        Command::Items { command } => commands::items::handle(&context, cli.output, command).await,
-        Command::Spawns { command } => {
-            commands::spawns::handle(&context, cli.output, command).await
-        }
-        Command::Server { command } => {
-            commands::server::handle(&context, cli.output, command).await
-        }
         // Handled above, before the context is built.
         Command::Completions { .. } => Ok(()),
     }
