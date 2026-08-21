@@ -55,7 +55,7 @@ cargo test --workspace
 ```
 
 CI runs these on Linux, macOS and Windows, plus a rustdoc build with warnings
-denied and a build at the declared MSRV.
+denied, a build at the declared MSRV, and a grep asserting the dependency rule.
 
 Do not silence a lint to make CI pass. Fix the code, or explain in the PR why the
 lint is wrong here.
