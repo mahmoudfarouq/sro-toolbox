@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install stable toolchain
+        run: |
+          rustup update --no-self-update stable
+          rustup default stable
+
+      - name: Versions
+        run: |
+          rustc --version
+          cargo --version
+
+      - name: Build
+        run: cargo build --workspace --all-targets
+
+      # --all-targets excludes doctests, so they run separately.
+      - name: Test
+        run: cargo test --workspace --all-targets
+
+      - name: Doctests
+        run: cargo test --workspace --doc
+
+  lint:
+    name: fmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install stable toolchain
+        run: |
+          rustup update --no-self-update stable
+          rustup default stable
+          rustup component add rustfmt clippy
+
+      - name: Formatting
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  architecture:
+    name: dependency rule
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The layering is the point of the workspace, so it is checked rather
+      # than trusted. See docs/adr/0001-layered-workspace.md.
+      - name: Inner layers must not reference outer ones
+        run: |
+          if grep -rn "sro_toolbox_infrastructure\|sro_toolbox_cli" \
+               crates/application crates/domain --include='*.rs'; then
+            echo "::error::an inner layer references an outer one"
+            exit 1
+          fi
+          echo "dependency rule holds"
+
+  msrv:
+    name: msrv (1.98)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the declared minimum toolchain
+        run: |
+          rustup toolchain install 1.98 --profile minimal --no-self-update
+          rustup default 1.98
+
+      - name: Build
+        run: cargo build --workspace --all-targets
+
+  docs:
+    name: rustdoc
+    runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install stable toolchain
+        run: |
+          rustup update --no-self-update stable
+          rustup default stable
+
+      - name: Build documentation
+        run: cargo doc --workspace --no-deps --document-private-items

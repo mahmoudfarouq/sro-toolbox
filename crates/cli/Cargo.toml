@@ -1,0 +1,33 @@
+[package]
+name = "sro-toolbox-cli"
+description = "Command line interface for the Silkroad server toolbox"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "toolbox"
+path = "src/main.rs"
+
+[dependencies]
+sro-toolbox-application = { workspace = true }
+sro-toolbox-domain = { workspace = true }
+sro-toolbox-infrastructure = { workspace = true }
+clap = { workspace = true }
+clap_complete = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+
+[lints]
+workspace = true
