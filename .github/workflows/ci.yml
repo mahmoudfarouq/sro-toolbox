@@ -81,15 +81,23 @@ jobs:
           echo "dependency rule holds"
 
   msrv:
-    name: msrv (1.98)
+    name: msrv (1.85)
     runs-on: ubuntu-latest
+    # rust-toolchain.toml pins `stable`, and that overrides `rustup default`.
+    # RUSTUP_TOOLCHAIN takes precedence over both, so it is what actually
+    # forces the toolchain here.
+    env:
+      RUSTUP_TOOLCHAIN: "1.85"
     steps:
       - uses: actions/checkout@v5
 
       - name: Install the declared minimum toolchain
+        run: rustup toolchain install 1.85 --profile minimal --no-self-update
+
+      - name: Confirm the toolchain actually in use
         run: |
-          rustup toolchain install 1.98 --profile minimal --no-self-update
-          rustup default 1.98
+          rustc --version
+          cargo --version
 
       - name: Build
         run: cargo build --workspace --all-targets
