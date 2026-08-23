@@ -1,4 +1,4 @@
-//! Accounts: the login identity that owns characters.
+//! The entities and value objects of the accounts subdomain.
 
 use serde::{Deserialize, Serialize};
 

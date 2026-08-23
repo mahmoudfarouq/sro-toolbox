@@ -1,17 +1,33 @@
-//! The domain model: what a Silkroad server *is*, independent of how it is
-//! stored or operated.
+//! The business logic and the entities it operates on, split by subdomain.
 //!
-//! This crate has no I/O, no database, no CLI and no async. It holds types that
-//! enforce their own invariants, so an invalid value cannot be constructed. That
-//! is what lets the layers above trust their inputs.
+//! Each subdomain is a module holding everything about one area:
 //!
-//! Only [`account`] exists so far. Characters, items, currencies and world
-//! geometry belong here too and will be added as the use cases that need them
-//! are written.
+//! ```text
+//! accounts/
+//!   account.rs        the entities and value objects
+//!   repository.rs     the port: what persistence must provide
+//!   ban_account.rs    one use case
+//!   mod.rs            re-exports
+//! ```
 //!
-//! See `docs/architecture.md` for how this fits the rest of the workspace.
+//! One file per use case. A new operation is a new file, not a new arm in a
+//! growing match.
+//!
+//! ## Why the ports live here
+//!
+//! The repository traits are declared alongside the logic that needs them and
+//! implemented in `sro-toolbox-storage`. That inverts what would otherwise be a
+//! dependency on a database driver: this crate names what it needs, and
+//! something else supplies it. Nothing here knows SQL Server exists.
+//!
+//! The cost is that this crate is not dependency-free — declaring an async port
+//! means depending on `async-trait`. That is the deliberate trade for having no
+//! separate application layer; see `docs/adr/0005-domain-owned-use-cases.md`.
 
-pub mod account;
+pub mod accounts;
+pub mod audit;
 pub mod error;
 
-pub use error::{DomainError, DomainResult};
+pub use error::{
+    DomainError, DomainResult, RepositoryError, RepositoryResult, UseCaseError, UseCaseResult,
+};

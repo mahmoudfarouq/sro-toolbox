@@ -1,6 +1,6 @@
 //! Adapters for the server's own SQL Server databases.
 //!
-//! Stubs. Each reports [`PortError::Unimplemented`] rather than panicking, so
+//! Stubs. Each reports [`RepositoryError::Unimplemented`] rather than panicking, so
 //! the command surface can be explored and tested before any query exists, and
 //! so a half-built adapter can never silently appear to work.
 //!
@@ -9,9 +9,8 @@
 //! [`SqlServerContext`].
 
 use async_trait::async_trait;
-use sro_toolbox_application::error::{PortError, PortResult};
-use sro_toolbox_application::ports::AccountRepository;
-use sro_toolbox_domain::account::{Account, AccountName};
+use sro_toolbox_domain::accounts::{Account, AccountName, AccountRepository};
+use sro_toolbox_domain::{RepositoryError, RepositoryResult};
 
 /// Shared connection state for the SQL Server adapters.
 ///
@@ -58,14 +57,14 @@ impl SqlServerAccountRepository {
 
 #[async_trait]
 impl AccountRepository for SqlServerAccountRepository {
-    async fn find_by_name(&self, _name: &AccountName) -> PortResult<Option<Account>> {
-        Err(PortError::Unimplemented(
+    async fn find_by_name(&self, _name: &AccountName) -> RepositoryResult<Option<Account>> {
+        Err(RepositoryError::Unimplemented(
             "reading accounts from SRO_VT_ACCOUNT",
         ))
     }
 
-    async fn save(&self, _account: &Account) -> PortResult<()> {
-        Err(PortError::Unimplemented(
+    async fn save(&self, _account: &Account) -> RepositoryResult<()> {
+        Err(RepositoryError::Unimplemented(
             "writing accounts to SRO_VT_ACCOUNT",
         ))
     }
@@ -86,6 +85,6 @@ mod tests {
             .await
             .expect_err("stub should fail");
 
-        assert!(matches!(error, PortError::Unimplemented(_)));
+        assert!(matches!(error, RepositoryError::Unimplemented(_)));
     }
 }

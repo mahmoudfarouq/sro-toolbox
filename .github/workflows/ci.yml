@@ -71,11 +71,11 @@ jobs:
 
       # The layering is the point of the workspace, so it is checked rather
       # than trusted. See docs/adr/0001-layered-workspace.md.
-      - name: Inner layers must not reference outer ones
+      - name: The domain must not reference storage or the interface
         run: |
-          if grep -rn "sro_toolbox_infrastructure\|sro_toolbox_cli" \
-               crates/application crates/domain --include='*.rs'; then
-            echo "::error::an inner layer references an outer one"
+          if grep -rn "sro_toolbox_storage\|sro_toolbox_cli" \
+               crates/domain --include='*.rs'; then
+            echo "::error::the domain references an outer layer"
             exit 1
           fi
           echo "dependency rule holds"

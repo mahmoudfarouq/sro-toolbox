@@ -3,8 +3,8 @@
 use std::sync::Mutex;
 
 use async_trait::async_trait;
-use sro_toolbox_application::error::PortResult;
-use sro_toolbox_application::ports::{AuditEntry, AuditLog};
+use sro_toolbox_domain::RepositoryResult;
+use sro_toolbox_domain::audit::{AuditEntry, AuditLog};
 
 /// An audit log that keeps entries in memory and emits each one at info level.
 #[derive(Debug, Default)]
@@ -31,7 +31,7 @@ impl InMemoryAuditLog {
 
 #[async_trait]
 impl AuditLog for InMemoryAuditLog {
-    async fn record(&self, entry: AuditEntry) -> PortResult<()> {
+    async fn record(&self, entry: AuditEntry) -> RepositoryResult<()> {
         tracing::info!(
             action = entry.action,
             target = %entry.target,

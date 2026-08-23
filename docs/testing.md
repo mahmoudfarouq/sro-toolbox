@@ -4,9 +4,8 @@
 
 | Crate | Tests | What they cover |
 |---|---|---|
-| `domain` | 23 | Invariants: what is a valid name, what arithmetic is refused |
-| `application` | 10 | Use-case behaviour against fakes |
-| `infrastructure` | 5 | Adapters honour their port's contract |
+| `domain` | 33 | Invariants, and use-case behaviour against fakes |
+| `storage` | 5 | Adapters honour their port's contract |
 | `cli` | 9 | The built binary: parsing, wiring, rendering, exit codes |
 
 ## Table-driven by default
@@ -55,10 +54,10 @@ guarantee no amount of happy-path testing would catch.
 
 ## The layer decides the test
 
-- **`domain`** — pure functions and invariants. No async, no fakes.
-- **`application`** — one use case against fakes. Assert the output, the state
-  the fake ended in, and that exactly one audit entry was written.
-- **`infrastructure`** — the adapter satisfies its port. The `sqlserver` test
+- **`domain`, entities** — pure functions and invariants. No async, no fakes.
+- **`domain`, use cases** — one use case against fakes. Assert the output, the
+  state the fake ended in, and that exactly one audit entry was written.
+- **`storage`** — the adapter satisfies its port. The `sqlserver` test
   asserts the stub *reports* `Unimplemented` rather than pretending to succeed.
 - **`cli`** — `assert_cmd` over the real binary. Exit codes are asserted by
   number, because scripts depend on them.
@@ -68,6 +67,7 @@ guarantee no amount of happy-path testing would catch.
 ```bash
 cargo test --workspace              # everything
 cargo test -p sro-toolbox-domain    # one crate
+cargo test accounts::                # one subdomain
 cargo test --workspace -- --nocapture
 ```
 

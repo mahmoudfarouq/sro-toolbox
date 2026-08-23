@@ -1,5 +1,10 @@
 # 0001 — A four-crate workspace, not one crate with modules
 
+> **Superseded by [0005](0005-domain-owned-use-cases.md).** The separate
+> `application` crate was removed and its use cases moved into `domain`. The
+> reasoning below about enforcing boundaries with crates still holds; only the
+> number of crates changed, from four to three.
+
 ## Context
 
 The tool needs to be usable from a CLI now and plausibly from a web panel later.

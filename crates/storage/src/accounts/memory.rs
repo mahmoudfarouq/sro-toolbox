@@ -4,9 +4,8 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use async_trait::async_trait;
-use sro_toolbox_application::error::PortResult;
-use sro_toolbox_application::ports::AccountRepository;
-use sro_toolbox_domain::account::{Account, AccountName};
+use sro_toolbox_domain::RepositoryResult;
+use sro_toolbox_domain::accounts::{Account, AccountName, AccountRepository};
 
 /// An account store backed by a map.
 #[derive(Debug, Default)]
@@ -36,7 +35,7 @@ impl InMemoryAccountRepository {
 
 #[async_trait]
 impl AccountRepository for InMemoryAccountRepository {
-    async fn find_by_name(&self, name: &AccountName) -> PortResult<Option<Account>> {
+    async fn find_by_name(&self, name: &AccountName) -> RepositoryResult<Option<Account>> {
         Ok(self
             .accounts
             .lock()
@@ -45,7 +44,7 @@ impl AccountRepository for InMemoryAccountRepository {
             .cloned())
     }
 
-    async fn save(&self, account: &Account) -> PortResult<()> {
+    async fn save(&self, account: &Account) -> RepositoryResult<()> {
         self.accounts
             .lock()
             .expect("lock is never poisoned: no panics while held")
@@ -56,7 +55,7 @@ impl AccountRepository for InMemoryAccountRepository {
 
 #[cfg(test)]
 mod tests {
-    use sro_toolbox_domain::account::{AccountId, AccountStatus, BanDuration, BanReason};
+    use sro_toolbox_domain::accounts::{AccountId, AccountStatus, BanDuration, BanReason};
 
     use super::*;
 

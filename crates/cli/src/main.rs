@@ -3,8 +3,8 @@
 //! Responsibilities, and nothing more: parse arguments, start logging, build the
 //! composition root, dispatch, and turn a failure into an exit code.
 
+mod accounts;
 mod cli;
-mod commands;
 mod error;
 mod output;
 mod wiring;
@@ -54,9 +54,7 @@ async fn run(cli: Cli) -> Result<(), CliError> {
     let context = Context::in_memory();
 
     match cli.command {
-        Command::Accounts { command } => {
-            commands::accounts::handle(&context, cli.output, command).await
-        }
+        Command::Accounts { command } => accounts::handle(&context, cli.output, command).await,
         // Handled above, before the context is built.
         Command::Completions { .. } => Ok(()),
     }

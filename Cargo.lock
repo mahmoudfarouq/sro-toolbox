@@ -580,18 +580,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 
 [[package]]
-name = "sro-toolbox-application"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "rstest",
- "serde",
- "sro-toolbox-domain",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "sro-toolbox-cli"
 version = "0.1.0"
 dependencies = [
@@ -601,9 +589,8 @@ dependencies = [
  "predicates",
  "serde",
  "serde_json",
- "sro-toolbox-application",
  "sro-toolbox-domain",
- "sro-toolbox-infrastructure",
+ "sro-toolbox-storage",
  "thiserror",
  "tokio",
  "tracing",
@@ -614,17 +601,18 @@ dependencies = [
 name = "sro-toolbox-domain"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "rstest",
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
-name = "sro-toolbox-infrastructure"
+name = "sro-toolbox-storage"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "sro-toolbox-application",
  "sro-toolbox-domain",
  "tokio",
  "tracing",

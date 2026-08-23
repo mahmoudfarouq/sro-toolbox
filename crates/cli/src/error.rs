@@ -2,8 +2,7 @@
 
 use std::process::ExitCode;
 
-use sro_toolbox_application::ApplicationError;
-use sro_toolbox_application::error::PortError;
+use sro_toolbox_domain::{RepositoryError, UseCaseError};
 use thiserror::Error;
 
 /// Something the CLI could not do.
@@ -11,7 +10,7 @@ use thiserror::Error;
 pub(crate) enum CliError {
     /// A use case failed.
     #[error(transparent)]
-    Application(#[from] ApplicationError),
+    UseCase(#[from] UseCaseError),
 
     /// The command exists but is not wired up yet.
     #[error("`{command}` is not implemented yet")]
@@ -34,14 +33,14 @@ impl CliError {
     pub(crate) fn exit_code(&self) -> ExitCode {
         match self {
             // Bad input from the operator.
-            Self::Application(ApplicationError::Domain(_)) => ExitCode::from(2),
+            Self::UseCase(UseCaseError::Domain(_)) => ExitCode::from(2),
             // The target does not exist.
-            Self::Application(ApplicationError::NotFound { .. }) => ExitCode::from(3),
+            Self::UseCase(UseCaseError::NotFound { .. }) => ExitCode::from(3),
             // The adapter is a stub.
-            Self::Application(ApplicationError::Port(PortError::Unimplemented(_)))
+            Self::UseCase(UseCaseError::Repository(RepositoryError::Unimplemented(_)))
             | Self::NotImplemented { .. } => ExitCode::from(4),
             // Everything else.
-            Self::Application(ApplicationError::Port(_)) | Self::Render(_) => ExitCode::from(1),
+            Self::UseCase(UseCaseError::Repository(_)) | Self::Render(_) => ExitCode::from(1),
         }
     }
 }

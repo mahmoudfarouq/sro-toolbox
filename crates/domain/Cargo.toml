@@ -1,6 +1,6 @@
 [package]
 name = "sro-toolbox-domain"
-description = "Domain model for Silkroad Online server administration"
+description = "Business logic and entities for Silkroad server administration"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,11 +9,13 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+async-trait = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

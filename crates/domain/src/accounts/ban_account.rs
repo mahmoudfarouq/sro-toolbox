@@ -2,11 +2,11 @@
 
 use std::sync::Arc;
 
+use crate::accounts::account::{AccountName, BanDuration, BanReason};
+use crate::accounts::repository::AccountRepository;
+use crate::audit::{AuditEntry, AuditLog};
+use crate::error::{UseCaseError, UseCaseResult};
 use serde::Serialize;
-use sro_toolbox_domain::account::{AccountName, BanDuration, BanReason};
-
-use crate::error::{ApplicationError, ApplicationResult};
-use crate::ports::{AccountRepository, AuditEntry, AuditLog};
 
 /// What the caller supplies. Raw strings, because validation is the domain's
 /// job and doing it here would duplicate it per interface.
@@ -58,10 +58,10 @@ impl BanAccount {
     ///
     /// # Errors
     ///
-    /// Returns [`ApplicationError::Domain`] if the name, reason or duration is
-    /// invalid, [`ApplicationError::NotFound`] if no such account exists, or
-    /// [`ApplicationError::Port`] if the store or audit log fails.
-    pub async fn execute(&self, input: BanAccountInput) -> ApplicationResult<BanAccountOutput> {
+    /// Returns [`UseCaseError::Domain`] if the name, reason or duration is
+    /// invalid, [`UseCaseError::NotFound`] if no such account exists, or
+    /// [`UseCaseError::Repository`] if the store or audit log fails.
+    pub async fn execute(&self, input: BanAccountInput) -> UseCaseResult<BanAccountOutput> {
         let name = AccountName::parse(input.account_name)?;
         let reason = BanReason::parse(input.reason)?;
         let duration = match input.days {
@@ -73,7 +73,7 @@ impl BanAccount {
             self.accounts
                 .find_by_name(&name)
                 .await?
-                .ok_or_else(|| ApplicationError::NotFound {
+                .ok_or_else(|| UseCaseError::NotFound {
                     kind: "account",
                     identifier: name.to_string(),
                 })?;
@@ -109,11 +109,10 @@ impl BanAccount {
 mod tests {
     use std::sync::Mutex;
 
-    use rstest::rstest;
-    use sro_toolbox_domain::account::{Account, AccountId, AccountStatus};
-
     use super::*;
-    use crate::error::{PortError, PortResult};
+    use crate::accounts::account::{Account, AccountId, AccountStatus};
+    use crate::error::{RepositoryError, RepositoryResult};
+    use rstest::rstest;
 
     /// A repository holding one optional account, with a switch for failure.
     #[derive(Default)]
@@ -148,14 +147,14 @@ mod tests {
 
     #[async_trait::async_trait]
     impl AccountRepository for FakeAccounts {
-        async fn find_by_name(&self, _name: &AccountName) -> PortResult<Option<Account>> {
+        async fn find_by_name(&self, _name: &AccountName) -> RepositoryResult<Option<Account>> {
             if self.fail {
-                return Err(PortError::Storage("cannot reach the database".into()));
+                return Err(RepositoryError::Storage("cannot reach the database".into()));
             }
             Ok(self.account.lock().expect("not poisoned").clone())
         }
 
-        async fn save(&self, account: &Account) -> PortResult<()> {
+        async fn save(&self, account: &Account) -> RepositoryResult<()> {
             *self.account.lock().expect("not poisoned") = Some(account.clone());
             Ok(())
         }
@@ -168,7 +167,7 @@ mod tests {
 
     #[async_trait::async_trait]
     impl AuditLog for FakeAudit {
-        async fn record(&self, entry: AuditEntry) -> PortResult<()> {
+        async fn record(&self, entry: AuditEntry) -> RepositoryResult<()> {
             self.entries.lock().expect("not poisoned").push(entry);
             Ok(())
         }
@@ -254,7 +253,7 @@ mod tests {
 
         assert!(matches!(
             error,
-            ApplicationError::NotFound {
+            UseCaseError::NotFound {
                 kind: "account",
                 ..
             }
@@ -270,7 +269,7 @@ mod tests {
 
         let error = use_case.execute(input()).await.expect_err("should fail");
 
-        assert!(matches!(error, ApplicationError::Port(_)));
+        assert!(matches!(error, UseCaseError::Repository(_)));
     }
 
     #[rstest]
@@ -302,7 +301,7 @@ mod tests {
             .expect_err("should fail");
 
         assert!(
-            matches!(error, ApplicationError::Domain(_)),
+            matches!(error, UseCaseError::Domain(_)),
             "expected a domain error, got {error:?}"
         );
     }
