@@ -7,10 +7,12 @@
 
 use std::sync::Arc;
 
-use sro_toolbox_application::ports::{AccountRepository, AuditLog};
-use sro_toolbox_application::use_cases::BanAccount;
-use sro_toolbox_domain::account::{Account, AccountId, AccountName, AccountStatus};
-use sro_toolbox_infrastructure::memory::{InMemoryAccountRepository, InMemoryAuditLog};
+use sro_toolbox_domain::accounts::{
+    Account, AccountId, AccountName, AccountRepository, AccountStatus, BanAccount,
+};
+use sro_toolbox_domain::audit::AuditLog;
+use sro_toolbox_storage::accounts::InMemoryAccountRepository;
+use sro_toolbox_storage::audit::InMemoryAuditLog;
 
 /// Everything the commands need, already wired.
 pub(crate) struct Context {

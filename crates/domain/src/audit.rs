@@ -1,17 +1,18 @@
 //! Recording what the operator did.
+//!
+//! Cross-cutting rather than owned by one subdomain, so it lives at the crate
+//! root. Every mutating use case writes an entry: the tool edits live player
+//! data, so "who changed what" is a requirement, not a nicety.
 
 use async_trait::async_trait;
 use serde::Serialize;
 
-use crate::error::PortResult;
+use crate::error::RepositoryResult;
 
 /// One recorded administrative action.
-///
-/// Every mutating use case writes one of these. The tool edits live player data,
-/// so "who changed what" is a requirement rather than a nicety.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct AuditEntry {
-    /// What was done, as a stable machine-readable key.
+    /// What was done, as a stable machine-readable key such as `accounts.ban`.
     pub action: &'static str,
     /// What it was done to.
     pub target: String,
@@ -26,6 +27,6 @@ pub trait AuditLog: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns [`crate::error::PortError`] if the entry cannot be written.
-    async fn record(&self, entry: AuditEntry) -> PortResult<()>;
+    /// Returns [`crate::error::RepositoryError`] if the entry cannot be written.
+    async fn record(&self, entry: AuditEntry) -> RepositoryResult<()>;
 }

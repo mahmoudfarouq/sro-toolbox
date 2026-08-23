@@ -26,22 +26,28 @@ second one. So the layering is enforced by crate boundaries rather than by
 convention:
 
 ```
-        crates/cli                  the only crate that knows clap exists
-             │
-             ▼
-     crates/application            use cases + the ports they need
-             │         ▲
-             ▼         │ implements
-      crates/domain    crates/infrastructure
-      no I/O at all    SQL Server, PK2, in-memory
+   crates/cli  ──────▶  crates/domain  ◀──────  crates/storage
+   the only crate       entities, ports         adapters implementing
+   that knows clap      and use cases,          those ports: SQL Server,
+   exists               split by subdomain      PK2, in-memory
 ```
 
-`application` depends on `domain` and on traits it declares itself. It never
-depends on `infrastructure` or on `cli`. Adding a web front end means adding one
-crate beside `cli` and reusing every use case unchanged.
+`domain` declares the ports it needs and depends on neither of the others.
+`storage` implements them; `cli` wires them together. Adding a web front end
+means adding one crate beside `cli` and reusing every use case unchanged.
 
-See [`docs/architecture.md`](docs/architecture.md) for the full picture and
-[`docs/adr/`](docs/adr/) for why each decision was made.
+Each crate is split the same way, by subdomain, with one file per use case:
+
+```
+domain/accounts/          storage/accounts/       cli/accounts/
+  account.rs                memory.rs               mod.rs
+  repository.rs             sqlserver.rs            ban.rs
+  ban_account.rs
+```
+
+See [`docs/architecture.md`](docs/architecture.md) for the full picture,
+[`docs/adr/`](docs/adr/) for why each decision was made, and
+[`docs/roadmap.md`](docs/roadmap.md) for where this is going.
 
 ## Command surface
 
@@ -87,8 +93,12 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
-CI runs all three on Linux, macOS and Windows. `docs/testing.md` covers the
-table-driven approach; `CONTRIBUTING.md` covers adding a use case.
+CI runs all three on Linux, macOS and Windows, plus a rustdoc build, a build at
+the declared MSRV, and a grep asserting the dependency rule.
+
+[`docs/testing.md`](docs/testing.md) covers the table-driven approach,
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers adding a use case, and
+[`CLAUDE.md`](CLAUDE.md) is the guide for AI agents working here.
 
 ## License
 

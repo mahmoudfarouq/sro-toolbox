@@ -1,11 +1,13 @@
-//! The command surface, as clap sees it.
+//! The root command surface, as clap sees it.
 //!
-//! This module is the only place that knows about command-line syntax. It
-//! deliberately holds no behaviour: parsing produces plain values, and
-//! [`crate::commands`] turns those into use-case inputs.
+//! Only the global options and the top-level areas live here. Each area owns its
+//! own subcommand enum and dispatch, in a module beside this one, so adding an
+//! area does not grow this file.
 
 use clap::{Parser, Subcommand, ValueEnum};
 use clap_complete::Shell;
+
+use crate::accounts::AccountsCommand;
 
 /// A toolbox for administering a Silkroad Online private server.
 #[derive(Debug, Parser)]
@@ -37,7 +39,7 @@ pub(crate) enum OutputFormat {
     Json,
 }
 
-/// Top-level areas, one per domain concern.
+/// Top-level areas, one per subdomain.
 #[derive(Debug, Subcommand)]
 pub(crate) enum Command {
     /// Login accounts: bans, privileges, silk.
@@ -51,49 +53,5 @@ pub(crate) enum Command {
     Completions {
         /// Which shell to generate for.
         shell: Shell,
-    },
-}
-
-/// Account operations.
-#[derive(Debug, Subcommand)]
-pub(crate) enum AccountsCommand {
-    /// Block an account from logging in.
-    Ban {
-        /// The account's login name.
-        name: String,
-
-        /// Why it is being blocked.
-        #[arg(long, short)]
-        reason: String,
-
-        /// Days the block lasts. Omit for a permanent ban.
-        #[arg(long, short)]
-        days: Option<u32>,
-    },
-
-    /// Lift a block on an account.
-    Unban {
-        /// The account's login name.
-        name: String,
-    },
-
-    /// Show an account's current state.
-    Show {
-        /// The account's login name.
-        name: String,
-    },
-
-    /// Add silk to an account.
-    GrantSilk {
-        /// The account's login name.
-        name: String,
-
-        /// How much silk to add.
-        #[arg(long, short)]
-        amount: u32,
-
-        /// Which silk pool to credit.
-        #[arg(long, short, default_value = "purchased")]
-        kind: String,
     },
 }

@@ -1,6 +1,6 @@
 [package]
-name = "sro-toolbox-infrastructure"
-description = "Adapters implementing the toolbox's ports"
+name = "sro-toolbox-storage"
+description = "Storage adapters for the Silkroad server toolbox"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,7 +9,6 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-sro-toolbox-application = { workspace = true }
 sro-toolbox-domain = { workspace = true }
 async-trait = { workspace = true }
 tracing = { workspace = true }

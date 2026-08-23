@@ -14,8 +14,7 @@ authors = ["Mahmoud Farouk <mahmoud.farouk987@gmail.com>"]
 # `dep.workspace = true`.
 [workspace.dependencies]
 sro-toolbox-domain = { path = "crates/domain", version = "0.1.0" }
-sro-toolbox-application = { path = "crates/application", version = "0.1.0" }
-sro-toolbox-infrastructure = { path = "crates/infrastructure", version = "0.1.0" }
+sro-toolbox-storage = { path = "crates/storage", version = "0.1.0" }
 
 async-trait = "0.1.92"
 clap = { version = "4.6.6", features = ["derive", "env", "wrap_help"] }
