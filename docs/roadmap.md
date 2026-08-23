@@ -14,19 +14,25 @@ repository while surveying the format; moved here, where it belongs.
 
 | | |
 |---|---|
-| **Built** | `accounts ban`, end to end — domain entities, use case, in-memory storage, CLI |
+| **Built** | `accounts ban`, end to end — domain entities, use case, CLI, and a SQL Server adapter against `SRO_VT_ACCOUNT` |
+| **Unverified** | That adapter compiles and its logic is unit-tested, but has never run against a live server |
 | **Scaffolded** | `accounts unban`, `accounts show`, `accounts grant-silk` — parse and validate, then exit 4 |
-| **Stubbed** | The SQL Server adapter reports `Unimplemented` rather than pretending to work |
 | **Not started** | Everything else below |
 
-## What the first real milestone probably is
+## What the next milestone is
 
-Not more commands. The tool cannot touch a real server yet, so the highest-value
-work is the SQL Server adapter behind the one use case that already exists —
-`accounts ban` against `SRO_VT_ACCOUNT`. That turns the whole vertical slice
-from a demonstration into something usable, and it settles the questions every
-later adapter inherits: connection handling, configuration, transactions, and
-how a failed write is reported.
+**Verify the ban against a real server.** The adapter is written, but the `Type`
+and `Status` values it uses are assumed rather than confirmed, and a wrong guess
+there means bans that appear to succeed and do nothing. Running it against a
+throwaway copy of `SRO_VT_ACCOUNT` settles that, and would justify integration
+tests gated behind a connection string.
+
+Two things surfaced while writing it that apply to everything after:
+
+- **A SQL Server audit adapter.** Actions against a real database are currently
+  recorded to the process log only, which is not an audit trail.
+- **Connection pooling.** Each call opens its own connection. Fine for a CLI,
+  not for a web interface.
 
 After that, breadth is cheap: each new area is a domain module, its ports, its
 use cases, and a variant on `Command`.

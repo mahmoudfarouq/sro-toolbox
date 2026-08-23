@@ -1,19 +1,26 @@
 //! Storage adapters: concrete implementations of the ports the domain declares.
 //!
-//! Split by subdomain, mirroring `sro-toolbox-domain`, so the adapter for a
-//! subdomain sits next to nothing else:
+//! Organised adapter first, then subdomain, then one file per operation:
 //!
 //! ```text
-//! accounts/
-//!   memory.rs      in-process, for tests and a safe sandbox
-//!   sqlserver.rs   the real target, currently stubs
-//! audit/
-//!   memory.rs
+//! sqlserver/account/find_by_name.rs
+//! sqlserver/account/save.rs
+//! memory/account/find_by_name.rs
+//! memory/account/save.rs
 //! ```
 //!
+//! A port's `impl` block lives in the subdomain's `mod.rs` and delegates to
+//! those files, so each operation — its SQL, its mapping, its tests — is one
+//! self-contained unit.
+//!
+//! Two adapters:
+//!
+//! - [`memory`] — in-process. Used by tests, by the CLI's sandbox, and as the
+//!   reference for what a real adapter has to do.
+//! - [`sqlserver`] — the real target, talking to `SRO_VT_ACCOUNT` over TDS.
+//!
 //! Nothing in the domain references this crate. The composition root in the
-//! interface crate chooses which adapter to use, which is what allows the tool
-//! to run against fakes, a real database, or a mixture.
+//! interface crate chooses which adapter to use.
 
-pub mod accounts;
-pub mod audit;
+pub mod memory;
+pub mod sqlserver;

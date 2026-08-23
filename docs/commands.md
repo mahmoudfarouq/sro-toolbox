@@ -9,6 +9,7 @@ toolbox [OPTIONS] <AREA> <ACTION>
 | Option | Effect |
 |---|---|
 | `-o, --output <text\|json>` | Rendering. `json` prints one document, for scripting. Default `text`. |
+| `--database <CONNECTION_STRING>` | ADO connection string for the server's SQL Server. Also read from `TOOLBOX_DATABASE`. Omit it and the tool runs against an in-memory sandbox. |
 | `--dry-run` | Accepted, **not yet enforced**; logs a warning. |
 | `-v, --verbose` | Log verbosity, repeatable. Logs go to stderr so stdout stays parseable. |
 | `-h, --help` / `-V, --version` | |
@@ -27,7 +28,7 @@ toolbox [OPTIONS] <AREA> <ACTION>
 
 | Command | Status |
 |---|---|
-| `accounts ban <name> --reason <text> [--days <n>]` | ✅ |
+| `accounts ban <name> --reason <text> [--days <n>]` | ✅ (SQL Server adapter unverified against a live server) |
 | `accounts unban <name>` | ⏳ |
 | `accounts show <name>` | ⏳ |
 | `accounts grant-silk <name> --amount <n> [--kind <pool>]` | ⏳ |
@@ -71,6 +72,18 @@ toolbox completions zsh  > ~/.zfunc/_toolbox
 
 ## The sandbox account
 
-The in-process adapters are seeded with one active account, `player01`, so the
-implemented path can be exercised without a database. Anything else reports
-"account not found" and exits 3.
+Without `--database`, the in-process adapters are seeded with one active
+account, `player01`, so the implemented path can be exercised safely. Anything
+else reports "account not found" and exits 3.
+
+## Talking to a real server
+
+```bash
+export TOOLBOX_DATABASE="Server=tcp:10.0.0.5,1433;Database=SRO_VT_ACCOUNT;User Id=sa;Password=...;TrustServerCertificate=true"
+toolbox accounts ban player01 --reason "botting" --days 7
+```
+
+The connection string is parsed when the command starts, so a malformed one
+fails immediately rather than part-way through. What the adapter reads and
+writes, and what it assumes about the schema, is in
+[`sqlserver-schema.md`](sqlserver-schema.md).
