@@ -1,11 +1,11 @@
 # Testing
 
-47 tests today, and the shape matters more than the count.
+80 tests today, and the shape matters more than the count.
 
 | Crate | Tests | What they cover |
 |---|---|---|
 | `domain` | 33 | Invariants, and use-case behaviour against fakes |
-| `storage` | 5 | Adapters honour their port's contract |
+| `storage` | 38 | Adapters honour their port's contract; SQL text and row mapping |
 | `cli` | 9 | The built binary: parsing, wiring, rendering, exit codes |
 
 ## Table-driven by default
@@ -57,7 +57,12 @@ guarantee no amount of happy-path testing would catch.
 - **`domain`, entities** — pure functions and invariants. No async, no fakes.
 - **`domain`, use cases** — one use case against fakes. Assert the output, the
   state the fake ended in, and that exactly one audit entry was written.
-- **`storage`** — the adapter satisfies its port. The `sqlserver` test
+- **`storage`, SQL Server** — everything that does not need a server: that the
+  SQL names the columns the schema requires, that values are bound rather than
+  interpolated, that a row maps to the right domain value, and that what `save`
+  writes `find_by_name` reads back. Only executing the statements needs a live
+  database, and that is not yet covered.
+- **`storage`** — the adapter satisfies its port. The stub
   asserts the stub *reports* `Unimplemented` rather than pretending to succeed.
 - **`cli`** — `assert_cmd` over the real binary. Exit codes are asserted by
   number, because scripts depend on them.

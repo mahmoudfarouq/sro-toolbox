@@ -28,9 +28,12 @@ crates/
 │           └── ban_account.rs     one use case, one file
 │
 ├── storage/         adapters implementing the domain's ports
-│   └── src/
-│       ├── accounts/{memory,sqlserver}.rs
-│       └── audit/memory.rs
+│   └── src/                    adapter, then subdomain, then one file per operation
+│       ├── memory/account/{find_by_name,save}.rs
+│       ├── memory/audit/record.rs
+│       └── sqlserver/
+│           ├── schema.rs           table names and magic numbers, in one place
+│           └── account/{find_by_name,save}.rs
 │
 └── cli/             the interface; the only crate that knows clap exists
     └── src/
@@ -76,7 +79,7 @@ for why, and what it costs.
 | A rule about what a valid value is | `domain/<subdomain>/<entity>.rs` — a newtype whose constructor returns `DomainResult` |
 | A thing the tool can *do* | `domain/<subdomain>/<verb>_<noun>.rs` — one file per use case |
 | A new external dependency the logic needs | `domain/<subdomain>/repository.rs`, or a new port module |
-| Talking to SQL Server, PK2 files, the live server | `storage/<subdomain>/` |
+| Talking to SQL Server, PK2 files, the live server | `storage/<adapter>/<subdomain>/<operation>.rs` |
 | A new command | `cli/<subdomain>/mod.rs` for the syntax, `cli/<subdomain>/<action>.rs` for the handler |
 | Deciding which adapter is used | `cli/src/wiring.rs`, and nowhere else |
 | A structural decision | An ADR in `docs/adr/` |
@@ -157,6 +160,12 @@ implemented path can be exercised without a database. Anything else exits 3.
   is the deliberate cost of owning the ports; ADR 0005 explains.
 - `--dry-run` is parsed but not enforced, and logs a warning saying so. Wiring it
   properly needs a preview-capable adapter.
+- The SQL Server adapter has never run against a live server. Its logic is
+  unit-tested and it compiles, but the `Type` and `Status` constants in
+  `sqlserver/schema.rs` are **assumed**, not confirmed. Read
+  [`docs/sqlserver-schema.md`](docs/sqlserver-schema.md) before trusting it.
+- `storage` splits by adapter first, then subdomain — the reverse of `domain`
+  and `cli`. That is deliberate: an adapter is the unit that gets swapped.
 
 ## Scope
 
