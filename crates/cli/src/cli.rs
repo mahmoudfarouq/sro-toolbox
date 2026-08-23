@@ -17,6 +17,18 @@ pub(crate) struct Cli {
     #[arg(long, short, global = true, value_enum, default_value_t = OutputFormat::Text)]
     pub(crate) output: OutputFormat,
 
+    /// ADO connection string for the server's SQL Server.
+    ///
+    /// Without it the tool runs against an in-process sandbox, so nothing you
+    /// type can reach live player data by accident.
+    #[arg(
+        long,
+        global = true,
+        env = "TOOLBOX_DATABASE",
+        value_name = "CONNECTION_STRING"
+    )]
+    pub(crate) database: Option<String>,
+
     /// Describe what would happen without writing anything.
     #[arg(long, global = true)]
     pub(crate) dry_run: bool,

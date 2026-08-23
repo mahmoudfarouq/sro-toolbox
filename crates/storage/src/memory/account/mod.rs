@@ -1,5 +1,8 @@
 //! Accounts held in a map.
 
+mod find_by_name;
+mod save;
+
 use std::collections::HashMap;
 use std::sync::Mutex;
 
@@ -7,10 +10,13 @@ use async_trait::async_trait;
 use sro_toolbox_domain::RepositoryResult;
 use sro_toolbox_domain::accounts::{Account, AccountName, AccountRepository};
 
+/// The shared state each operation acts on.
+pub(super) type Store = Mutex<HashMap<AccountName, Account>>;
+
 /// An account store backed by a map.
 #[derive(Debug, Default)]
 pub struct InMemoryAccountRepository {
-    accounts: Mutex<HashMap<AccountName, Account>>,
+    accounts: Store,
 }
 
 impl InMemoryAccountRepository {
@@ -36,20 +42,11 @@ impl InMemoryAccountRepository {
 #[async_trait]
 impl AccountRepository for InMemoryAccountRepository {
     async fn find_by_name(&self, name: &AccountName) -> RepositoryResult<Option<Account>> {
-        Ok(self
-            .accounts
-            .lock()
-            .expect("lock is never poisoned: no panics while held")
-            .get(name)
-            .cloned())
+        find_by_name::execute(&self.accounts, name)
     }
 
     async fn save(&self, account: &Account) -> RepositoryResult<()> {
-        self.accounts
-            .lock()
-            .expect("lock is never poisoned: no panics while held")
-            .insert(account.name().clone(), account.clone());
-        Ok(())
+        save::execute(&self.accounts, account)
     }
 }
 
@@ -59,41 +56,13 @@ mod tests {
 
     use super::*;
 
-    fn account(name: &str) -> Account {
+    pub(super) fn account(name: &str) -> Account {
         Account::new(
             AccountId::new(1),
             AccountName::parse(name).expect("valid"),
             false,
             AccountStatus::Active,
         )
-    }
-
-    #[tokio::test]
-    async fn finds_a_seeded_account() {
-        let repository = InMemoryAccountRepository::seeded([account("player01")]);
-        let name = AccountName::parse("player01").expect("valid");
-
-        assert!(
-            repository
-                .find_by_name(&name)
-                .await
-                .expect("no failure")
-                .is_some()
-        );
-    }
-
-    #[tokio::test]
-    async fn a_missing_account_is_none_not_an_error() {
-        let repository = InMemoryAccountRepository::new();
-        let name = AccountName::parse("nobody01").expect("valid");
-
-        assert!(
-            repository
-                .find_by_name(&name)
-                .await
-                .expect("no failure")
-                .is_none()
-        );
     }
 
     #[tokio::test]

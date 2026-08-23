@@ -2,12 +2,21 @@
 
 A command-line toolbox for administering a Silkroad Online private server.
 
-> **Status: scaffolding.** The architecture, command surface and test approach
-> are in place. One use case — banning an account — is built end to end as the
-> worked example. Everything else is a deliberate stub that reports what is
-> missing rather than pretending to work.
+> **Status: early.** Banning an account is built end to end, including a real
+> SQL Server adapter against `SRO_VT_ACCOUNT`. Everything else is a deliberate
+> stub that reports what is missing rather than pretending to work.
+>
+> The SQL adapter compiles and its logic is unit-tested, but it has **not yet
+> been run against a live server**. See
+> [`docs/sqlserver-schema.md`](docs/sqlserver-schema.md) for what it assumes.
 
 ```console
+# Against a real server
+$ toolbox --database "Server=tcp:10.0.0.5,1433;Database=SRO_VT_ACCOUNT;User Id=sa;Password=...;TrustServerCertificate=true" \
+      accounts ban player01 --reason "botting" --days 7
+Banned player01 for 7 day(s).
+
+# Without --database, an in-memory sandbox: nothing can reach live data
 $ toolbox accounts ban player01 --reason "botting" --days 7
 Banned player01 for 7 day(s).
 
@@ -82,8 +91,9 @@ cargo run -p sro-toolbox-cli -- accounts ban player01 --reason "testing"
 cargo test --workspace
 ```
 
-Today the tool runs against in-process adapters seeded with one account,
-`player01`, so commands can be exercised without a database.
+Without `--database` the tool runs against in-process adapters seeded with one
+account, `player01`, so commands can be exercised safely. Supply `--database`
+(or `TOOLBOX_DATABASE`) with an ADO connection string to talk to a real server.
 
 ## Development
 

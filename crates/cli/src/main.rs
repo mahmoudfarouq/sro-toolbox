@@ -51,7 +51,7 @@ async fn run(cli: Cli) -> Result<(), CliError> {
         return Ok(());
     }
 
-    let context = Context::in_memory();
+    let context = Context::from_options(cli.database.as_deref())?;
 
     match cli.command {
         Command::Accounts { command } => accounts::handle(&context, cli.output, command).await,
